@@ -1,0 +1,5 @@
+websockets>=13
+sounddevice>=0.4.6
+edge-tts>=6.1.9
+miniaudio>=1.59
+pyttsx3>=2.90
