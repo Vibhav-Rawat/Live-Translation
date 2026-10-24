@@ -37,16 +37,20 @@ The goal is simple: **make multilingual conversations easier to follow without r
 
 ### Core Features
 
-* **Streaming speech processing:** Sends audio to the configured Soniox streaming API rather than requiring a complete recording before processing begins.
-* **Phrase-based playback:** Groups translated text into manageable phrases to balance responsiveness and intelligibility.
-* **Configurable output language:** Choose the language you want to hear.
-* **Multiple speech engines:** Supports online Edge TTS, a system voice, or captions without speech output.
-* **Live captions:** View incoming speech and translation in the terminal.
-* **Transcript saving:** Save conversation text and translations in Markdown and JSONL formats.
-* **Audio input options:** Use a microphone or process an existing audio file.
-* **Speaker labels:** Optional diarization for distinguishing speakers, where supported by the implementation.
-* **Experimental early mode:** Explore lower-latency playback using translation text before it is final.
-* **Demo mode:** Explore the processing pipeline without a microphone or Soniox API key.
+* **Real-time speech translation:** Streams microphone audio to the configured Soniox API for ongoing speech recognition and translation, without requiring a complete recording before processing begins.
+* **Audio file translation:** Process existing audio recordings using `--file`, making it possible to translate recorded conversations and other supported audio files.
+* **Automatic transcript generation:** Save the original speech and its translation in Markdown (`.md`) and JSONL (`.jsonl`) formats for readable review and further processing.
+* **Timestamped conversation records:** Organize transcript entries by session-relative timestamps, with source-language information and optional speaker labels where available.
+* **Phrase-based speech playback:** Groups translated text into manageable phrases to balance responsiveness and intelligibility during live interpretation.
+* **Configurable output language:** Choose the target language for translated speech.
+* **Multiple text-to-speech options:** Supports online Edge TTS, a system voice, or captions without speech output.
+* **Live captions:** Display incoming speech and translations directly in the terminal.
+* **Flexible audio input:** Choose between a microphone for live conversations and an existing audio file for recorded speech.
+* **Optional speaker diarization:** Supports speaker identification where available through the configured speech-processing service.
+* **Experimental low-latency mode:** Explores faster playback by using translation text before the transcription or translation is finalized.
+* **Configurable transcript storage:** Choose the output directory for saved session transcripts.
+* **Demo mode:** Explore the processing pipeline using a scripted conversation without a microphone or Soniox API key.
+
 
 ## Latency and Continuous Conversation
 
@@ -196,13 +200,45 @@ Press `Ctrl+C` to stop the program. The application is designed to save the sess
 
 ### Translate an Existing Audio File
 
-To process a supported audio file instead of using a microphone:
+LiveTranslate can process an existing audio recording instead of capturing audio from your microphone. This lets you translate recorded conversations, language-learning material, interviews, or other supported audio files and save the results as a transcript.
 
-```bash
-python -m livetranslate --target en --file some_audio.wav --tts none
+#### Run audio file translation
+
+```powershell
+python -m livetranslate --file "path\to\your\audio.wav" --target en --tts none
 ```
 
-This example disables spoken output while retaining the text-processing workflow.
+Replace the example path with the location of your audio file. Set `--target` to the language you want the speech translated into.
+
+**Example:**
+
+```powershell
+python -m livetranslate --file "recording.wav" --target en --tts none
+```
+
+The application streams the audio through the speech-processing pipeline, receives recognition and translation results, and saves the resulting transcript.
+
+#### Transcript output
+
+By default, transcripts are saved in the `sessions/` directory.
+
+The application supports:
+
+* **Markdown (`.md`)** — a readable transcript containing the original speech and its translation.
+* **JSONL (`.jsonl`)** — structured transcript records that can be processed programmatically.
+
+Transcript entries can include the original text, translated text, source-language information, speaker labels when available, and timestamps relative to the start of the session.
+
+To choose a different output directory, use `--save-dir`:
+
+```powershell
+python -m livetranslate --file "recording.wav" --target en --tts none --save-dir sessions
+```
+
+The `--tts none` option disables spoken translation, making this command useful when your primary goal is to generate a written transcript.
+
+**Note:** The timestamps currently represent when the application processes an utterance relative to the session start; they are not guaranteed to be precise word-level timestamps from the original recording. Recognition and translation quality depend on the audio, language, network connection, and speech-processing service.
+
 
 ## Command-Line Options
 
